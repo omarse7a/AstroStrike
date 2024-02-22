@@ -12,24 +12,27 @@ class Main:
 
         # components
         self.player = pygame.sprite.GroupSingle()
-        self.player.add(Player())
+        self.player.add(Player(self.screen))
 
         self.bg_image = pygame.image.load("graphics/background/background1.png").convert()
         self.bg_rect = self.bg_image.get_rect(topleft = (0, 0))
         
     
     def run(self):
+        # game loop
         while self.game_active:
+            # event loop
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.game_active = False
 
             self.screen.blit(self.bg_image, self.bg_rect)
             
+            # player
             self.player.update()
             self.player.draw(self.screen)
             
-
+            # update game info
             pygame.display.update()
             self.clock.tick(60)
 
