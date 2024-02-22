@@ -14,6 +14,9 @@ class Main:
         self.player = pygame.sprite.GroupSingle()
         self.player.add(Player(self.screen))
 
+        self.bullets = pygame.sprite.Group()
+        
+
         self.bg_image = pygame.image.load("graphics/background/background1.png").convert()
         self.bg_rect = self.bg_image.get_rect(topleft = (0, 0))
         
@@ -31,6 +34,12 @@ class Main:
             # player
             self.player.update()
             self.player.draw(self.screen)
+
+            # bullets
+            if self.player.sprite.bullets: # player has shot bullets
+                self.bullets = self.player.sprite.bullets
+                self.bullets.draw(self.screen)
+                self.bullets.update()
             
             # update game info
             pygame.display.update()

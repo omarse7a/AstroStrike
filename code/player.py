@@ -47,8 +47,6 @@ class Player(pygame.sprite.Sprite):
         
         self.player_input()
         self.player_animation()
-        self.bullets.draw(self.screen)
-        self.bullets.update()
 
 class Bullet(pygame.sprite.Sprite):
 
