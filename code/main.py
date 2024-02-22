@@ -1,5 +1,7 @@
 import pygame
+from random import randint
 from player import Player
+from asteroids import Big_asteriod, Small_asteriod
 
 class Main:
     def __init__(self):
@@ -12,13 +14,20 @@ class Main:
 
         # components
         self.player = pygame.sprite.GroupSingle()
-        self.player.add(Player(self.screen))
+        self.player.add(Player())
 
         self.bullets = pygame.sprite.Group()
-        
 
+        self.asteriods = pygame.sprite.Group()
+        
+        
+        # background
         self.bg_image = pygame.image.load("graphics/background/background1.png").convert()
         self.bg_rect = self.bg_image.get_rect(topleft = (0, 0))
+
+        # respawn timer
+        self.astro_timer = pygame.USEREVENT + 1
+        pygame.time.set_timer(self.astro_timer, 500)
         
     
     def run(self):
@@ -28,6 +37,11 @@ class Main:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.game_active = False
+                if event.type == self.astro_timer:
+                    if randint(0, 6):   # 5/6 of the time a small astro 
+                        self.asteriods.add(Small_asteriod())
+                    else:           # 1/6 of the time a big astro 
+                        self.asteriods.add(Big_asteriod())
 
             self.screen.blit(self.bg_image, self.bg_rect)
             
@@ -40,6 +54,10 @@ class Main:
                 self.bullets = self.player.sprite.bullets
                 self.bullets.draw(self.screen)
                 self.bullets.update()
+            
+            # asteroids
+            self.asteriods.draw(self.screen)
+            self.asteriods.update()
             
             # update game info
             pygame.display.update()
