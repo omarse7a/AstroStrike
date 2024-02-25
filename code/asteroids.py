@@ -14,7 +14,7 @@ class Asteroid(pygame.sprite.Sprite):
             self.kill()
 
 
-class Big_asteriod(Asteroid):
+class Big_Asteriod(Asteroid):
 
     def __init__(self):
         super().__init__()
@@ -26,11 +26,12 @@ class Big_asteriod(Asteroid):
         self.image = choice([big_astro_1,big_astro_2,big_astro_3])  # displaying astro image randomly
         # positioning the astro above the display screen in random x pos inside the screen borders
         self.rect = self.image.get_rect(midbottom = (randint(self.image.get_width(), 800-self.image.get_width()), -100))
+        self.destructible = False
     
     def update(self):
         self.move()
 
-class Small_asteriod(Asteroid):
+class Small_Asteriod(Asteroid):
 
     def __init__(self):
         super().__init__()
@@ -42,6 +43,7 @@ class Small_asteriod(Asteroid):
         self.image = choice([small_astro_1,small_astro_2,small_astro_3])    # displaying astro image randomly
         # positioning the astro above the display screen in random x pos inside the screen borders
         self.rect = self.image.get_rect(midbottom = (randint(self.image.get_width(), 800-self.image.get_width()), -100))
-    
+        self.destructible = True
+
     def update(self):
         self.move()

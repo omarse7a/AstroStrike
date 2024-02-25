@@ -1,8 +1,9 @@
 import pygame
+from sys import exit
 from random import randint
 from math import ceil
 from player import Player
-from asteroids import Big_asteriod, Small_asteriod
+from asteroids import Big_Asteriod, Small_Asteriod
 
 class Main:
     def __init__(self):
@@ -45,48 +46,68 @@ class Main:
         if self.scroll >= self.bg_image.get_height():
             self.scroll = 0
 
-    # def check_collisions(self):
-    #     if pygame.sprite.spritecollide(self.player.sprite, self.asteriods, False):
-    #         self.game_active = False
+    def check_collisions(self):
+        # detects pixel mask collisions for between spaceship and asteroid
+        if pygame.sprite.spritecollide(self.player.sprite, self.asteriods, False, pygame.sprite.collide_mask): 
+            self.player.kill()
+            self.game_active = False
+            
+        # detects rect collisions for between bullets and asteroid
+        for sprite in self.asteriods.sprites():
+            # big astro collisions
+            if sprite.destructible:
+                if pygame.sprite.spritecollide(sprite, self.bullets, True):
+                    sprite.kill() 
+            # small astro collision
+            else:
+                pygame.sprite.spritecollide(sprite, self.bullets, True)
+
+
     
     def run(self):
+        # start menu
+
         # game loop
-        while self.game_active:
+        while True:
             # event loop
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.game_active = False
-                if event.type == self.astro_timer:
+                    pygame.quit()
+                    exit()
+                if event.type == self.astro_timer and self.game_active:
                     if randint(0, 6):   # 5/6 of the time a small astro 
-                        self.asteriods.add(Small_asteriod())
+                        self.asteriods.add(Small_Asteriod())
                     else:           # 1/6 of the time a big astro 
-                        self.asteriods.add(Big_asteriod())
+                        self.asteriods.add(Big_Asteriod())
+                        
+            if self.game_active:
+                # draw scrolling bg
+                self.bg_scroll()
+                
+                # collisions
+                self.check_collisions() 
 
-            # draw scrolling bg
-            self.bg_scroll()
-            
-            # player
-            self.player.update()
-            self.player.draw(self.screen)
+                # player
+                self.player.update()
+                self.player.draw(self.screen)
 
-            # bullets
-            if self.player.sprite.bullets: # player has shot bullets
-                self.bullets = self.player.sprite.bullets
-                self.bullets.draw(self.screen)
-                self.bullets.update()
-            
-            # asteroids
-            self.asteriods.draw(self.screen)
-            self.asteriods.update()
+                # bullets
+                if self.player.sprite.bullets: # player has shot bullets
+                    self.bullets = self.player.sprite.bullets
+                    self.bullets.draw(self.screen)
+                    self.bullets.update()
+                
+                # asteroids
+                self.asteriods.update()
+                self.asteriods.draw(self.screen)
 
-            # collisions
-            # self.check_collisions()
-            
-            # update game info
-            pygame.display.update()
-            self.clock.tick(60)
+                
+                
+                # update game info
+                pygame.display.update()
+                self.clock.tick(60)
 
-        pygame.quit()
+        
         
 main = Main()
 main.run()

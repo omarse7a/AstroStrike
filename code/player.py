@@ -41,6 +41,7 @@ class Player(pygame.sprite.Sprite):
         if self.index >= len(self.frames): self.index = 0
         self.image = self.frames[int(self.index)]
 
+
     def update(self):
         self.player_input()
         self.player_animation()
