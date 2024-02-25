@@ -4,6 +4,7 @@ from random import randint
 from math import ceil
 from player import Player
 from asteroids import Big_Asteriod, Small_Asteriod
+from my_buttons import Button_2
 
 class Main:
     def __init__(self):
@@ -13,8 +14,18 @@ class Main:
         pygame.init()
         self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         pygame.display.set_caption("Space Fighter")
-        self.game_active = True
+        self.game_active = False
         self.clock = pygame.time.Clock()
+        self.font1 = pygame.font.Font("fonts/kenvector_future.ttf", 72)
+        self.font2 = pygame.font.Font("fonts/kenvector_future_thin.ttf", 42)
+        
+
+        # start menu
+        self.game_title = self.font1.render("Space Fighter", True,(66,22,210))
+        self.game_title_rect = self.game_title.get_rect(center = (self.SCREEN_WIDTH/2, 150))
+        self.start_button = Button_2("Start", (300,80), (self.SCREEN_WIDTH/2,self.SCREEN_HEIGHT/2), self.font2, (66,22,210))
+        self.exit_button = Button_2("Exit", (300,80), (self.SCREEN_WIDTH/2,self.SCREEN_HEIGHT/1.5), self.font2, (66,22,210))
+
 
         # components
         self.player = pygame.sprite.GroupSingle()
@@ -49,7 +60,6 @@ class Main:
     def check_collisions(self):
         # detects pixel mask collisions for between spaceship and asteroid
         if pygame.sprite.spritecollide(self.player.sprite, self.asteriods, False, pygame.sprite.collide_mask): 
-            self.player.kill()
             self.game_active = False
             
         # detects rect collisions for between bullets and asteroid
@@ -65,13 +75,12 @@ class Main:
 
     
     def run(self):
-        # start menu
 
         # game loop
         while True:
             # event loop
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+                if event.type == pygame.QUIT or self.exit_button.pressed():
                     pygame.quit()
                     exit()
                 if event.type == self.astro_timer and self.game_active:
@@ -80,13 +89,18 @@ class Main:
                     else:           # 1/6 of the time a big astro 
                         self.asteriods.add(Big_Asteriod())
                         
+            # start menu
+            self.screen.fill((0,8,64))
+            self.screen.blit(self.game_title, self.game_title_rect)
+            self.start_button.draw(self.screen, (145, 44, 238), "blue", 2, 10, (165, 64, 255))
+            self.exit_button.draw(self.screen, (145, 44, 238), "blue", 2, 10, (165, 64, 255))
+            if self.start_button.pressed():
+                self.game_active = True
+
             if self.game_active:
                 # draw scrolling bg
                 self.bg_scroll()
                 
-                # collisions
-                self.check_collisions() 
-
                 # player
                 self.player.update()
                 self.player.draw(self.screen)
@@ -101,13 +115,15 @@ class Main:
                 self.asteriods.update()
                 self.asteriods.draw(self.screen)
 
+                # collisions
+                self.check_collisions() 
                 
-                
-                # update game info
-                pygame.display.update()
-                self.clock.tick(60)
+            # update game info
+            pygame.display.update()
+            self.clock.tick(60)
 
-        
-        
-main = Main()
-main.run()
+
+# runs the script in class main only 
+if __name__ == "__main__":  
+    main = Main()
+    main.run()
