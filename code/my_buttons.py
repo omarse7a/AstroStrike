@@ -35,7 +35,7 @@ class Button_1:
 class Button_2:
     def __init__(self, text, size, pos, font, text_color = "white"):
 
-        self.rect = pygame.rect.Rect((0,0), size)
+        self.rect = pygame.rect.Rect((0,0), size) # (0,0) is the topleft value to be changed later
         self.rect.center = pos
         
         self.text_surface = font.render(text, True, text_color)

@@ -5,6 +5,7 @@ from math import ceil
 from player import Player
 from asteroids import Big_Asteriod, Small_Asteriod
 from my_buttons import Button_2
+from score import Score
 
 class Main:
     def __init__(self):
@@ -17,14 +18,16 @@ class Main:
         self.game_active = False
         self.clock = pygame.time.Clock()
         self.font1 = pygame.font.Font("fonts/kenvector_future.ttf", 72)
-        self.font2 = pygame.font.Font("fonts/kenvector_future_thin.ttf", 42)
+        self.font2 = pygame.font.Font("fonts/kenvector_future_thin.ttf", 46)
+        self.font3 = pygame.font.Font("fonts/kenvector_future.ttf", 24)
+        self.score = Score()
         
 
         # start menu
         self.game_title = self.font1.render("Space Fighter", True,(66,22,210))
         self.game_title_rect = self.game_title.get_rect(center = (self.SCREEN_WIDTH/2, 150))
-        self.start_button = Button_2("Start", (300,80), (self.SCREEN_WIDTH/2,self.SCREEN_HEIGHT/2), self.font2, (66,22,210))
-        self.exit_button = Button_2("Exit", (300,80), (self.SCREEN_WIDTH/2,self.SCREEN_HEIGHT/1.5), self.font2, (66,22,210))
+        self.start_button = Button_2("Start", (300,80), (self.SCREEN_WIDTH/2,self.SCREEN_HEIGHT/2 + 30), self.font2, (66,22,210))
+        self.exit_button = Button_2("Exit", (300,80), (self.SCREEN_WIDTH/2,self.SCREEN_HEIGHT/1.5 + 50), self.font2, (66,22,210))
 
 
         # components
@@ -33,8 +36,7 @@ class Main:
 
         self.bullets = pygame.sprite.Group()
 
-        self.asteriods = pygame.sprite.Group()
-        
+        self.asteriods = pygame.sprite.Group()      
         
         # background
         self.bg_image = pygame.image.load("graphics/background/background.png").convert()
@@ -61,13 +63,14 @@ class Main:
         # detects pixel mask collisions for between spaceship and asteroid
         if pygame.sprite.spritecollide(self.player.sprite, self.asteriods, False, pygame.sprite.collide_mask): 
             self.game_active = False
-            
+
         # detects rect collisions for between bullets and asteroid
         for sprite in self.asteriods.sprites():
             # big astro collisions
             if sprite.destructible:
                 if pygame.sprite.spritecollide(sprite, self.bullets, True):
                     sprite.kill() 
+                    self.score.astro_num += 1
             # small astro collision
             else:
                 pygame.sprite.spritecollide(sprite, self.bullets, True)
@@ -117,7 +120,14 @@ class Main:
 
                 # collisions
                 self.check_collisions() 
-                
+
+                # score
+                self.score.display(self.screen, self.font3)
+                self.score.update()
+
+            # game over / pause states
+            else:
+                pass
             # update game info
             pygame.display.update()
             self.clock.tick(60)

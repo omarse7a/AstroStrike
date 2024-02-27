@@ -31,10 +31,6 @@ class Player(pygame.sprite.Sprite):
         elif not keys[pygame.K_SPACE] and self.shoot_clicked:   # spacebar released
             self.shoot_clicked = False
             
-
-        # for collisions
-        ################
-
     def player_animation(self): 
         # animating spaceship movement
         self.index += 0.04
@@ -43,7 +39,6 @@ class Player(pygame.sprite.Sprite):
 
 
     def update(self):
+        # updating the sprite's frames
         self.player_input()
         self.player_animation()
-
-

@@ -46,4 +46,5 @@ class Small_Asteriod(Asteroid):
         self.destructible = True
 
     def update(self):
+        # updating the sprite's frames
         self.move()
