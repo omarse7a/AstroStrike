@@ -17,6 +17,9 @@ class Player(pygame.sprite.Sprite):
         self.bullets = pygame.sprite.Group()
         self.shoot_clicked = False
 
+        self.laser_sound = pygame.mixer.Sound("audio/sfx_laser1.ogg")   # laser sound effect
+        self.laser_sound.set_volume(0.1)
+
     def player_input(self):
         keys = pygame.key.get_pressed()
         if (keys[pygame.K_d] or keys[pygame.K_RIGHT]) and self.rect.right < 800:
@@ -28,6 +31,7 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_SPACE] and not self.shoot_clicked: # spacebar pressed
             self.bullets.add(Bullet(self.rect.center[0]))   # create a bullet sprite from the center of the spaceship
             self.shoot_clicked = True
+            self.laser_sound.play()
         elif not keys[pygame.K_SPACE] and self.shoot_clicked:   # spacebar released
             self.shoot_clicked = False
             

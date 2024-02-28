@@ -23,7 +23,6 @@ class Main:
         self.font3 = pygame.font.Font("fonts/kenvector_future.ttf", 24)
         self.score = Score()
         
-
         # start menu
         self.game_title = self.font1.render("Space Fighter", True,(66,22,210))
         self.game_title_rect = self.game_title.get_rect(center = (self.SCREEN_WIDTH/2, 150))
@@ -52,6 +51,12 @@ class Main:
         self.astro_timer = pygame.USEREVENT + 1
         pygame.time.set_timer(self.astro_timer, 500)
 
+        # sound effects
+        self.lose_sound = pygame.mixer.Sound("audio/sfx_lose.ogg")
+        self.lose_sound.set_volume(0.5)
+        self.hit_sound = pygame.mixer.Sound("audio/sfx_hit.wav")
+        self.hit_sound.set_volume(0.05)
+
     def bg_scroll(self):
          # drawing bg
         for i in range(0, self.bg_tiles):
@@ -65,7 +70,8 @@ class Main:
 
     def check_collisions(self):
         # detects pixel mask collisions for between spaceship and asteroid
-        if pygame.sprite.spritecollide(self.player.sprite, self.asteriods, False, pygame.sprite.collide_mask): 
+        if pygame.sprite.spritecollide(self.player.sprite, self.asteriods, False, pygame.sprite.collide_mask):
+            self.lose_sound.play()
             self.game_active = False
             self.game_state = "gameOver"
 
@@ -74,11 +80,12 @@ class Main:
             # big astro collisions
             if sprite.destructible:
                 if pygame.sprite.spritecollide(sprite, self.bullets, True):
+                    self.hit_sound.play()
                     sprite.kill() 
                     self.score.astro_num += 1
             # small astro collision
-            else:
-                pygame.sprite.spritecollide(sprite, self.bullets, True)
+            elif pygame.sprite.spritecollide(sprite, self.bullets, True):
+                self.hit_sound.play()
 
     # def display_text(self, text, color, font):
     #     self.text = font.render(text, True, color)
