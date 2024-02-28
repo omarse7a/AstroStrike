@@ -16,6 +16,7 @@ class Main:
         self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         pygame.display.set_caption("Space Fighter")
         self.game_active = False
+        self.game_state = "startMenu"
         self.clock = pygame.time.Clock()
         self.font1 = pygame.font.Font("fonts/kenvector_future.ttf", 72)
         self.font2 = pygame.font.Font("fonts/kenvector_future_thin.ttf", 46)
@@ -26,9 +27,12 @@ class Main:
         # start menu
         self.game_title = self.font1.render("Space Fighter", True,(66,22,210))
         self.game_title_rect = self.game_title.get_rect(center = (self.SCREEN_WIDTH/2, 150))
+
+        # buttons
         self.start_button = Button_2("Start", (300,80), (self.SCREEN_WIDTH/2,self.SCREEN_HEIGHT/2 + 30), self.font2, (66,22,210))
         self.exit_button = Button_2("Exit", (300,80), (self.SCREEN_WIDTH/2,self.SCREEN_HEIGHT/1.5 + 50), self.font2, (66,22,210))
-
+        self.restart_button = Button_2("Restart", (200,60), (self.SCREEN_WIDTH/3, 450), self.font3, (66,22,210))
+        self.menu_button = Button_2("Main Menu", (200,60), (self.SCREEN_WIDTH/1.5, 450), self.font3, (66,22,210))
 
         # components
         self.player = pygame.sprite.GroupSingle()
@@ -36,7 +40,7 @@ class Main:
 
         self.bullets = pygame.sprite.Group()
 
-        self.asteriods = pygame.sprite.Group()      
+        self.asteriods = pygame.sprite.Group()
         
         # background
         self.bg_image = pygame.image.load("graphics/background/background.png").convert()
@@ -54,7 +58,7 @@ class Main:
             self.bg_rect.bottomleft = (0, i*self.bg_image.get_height() + self.scroll)
             self.screen.blit(self.bg_image, self.bg_rect)
         # scroll bg
-        self.scroll += 2
+        self.scroll += 3
         # reset scroll
         if self.scroll >= self.bg_image.get_height():
             self.scroll = 0
@@ -63,6 +67,7 @@ class Main:
         # detects pixel mask collisions for between spaceship and asteroid
         if pygame.sprite.spritecollide(self.player.sprite, self.asteriods, False, pygame.sprite.collide_mask): 
             self.game_active = False
+            self.game_state = "gameOver"
 
         # detects rect collisions for between bullets and asteroid
         for sprite in self.asteriods.sprites():
@@ -75,15 +80,23 @@ class Main:
             else:
                 pygame.sprite.spritecollide(sprite, self.bullets, True)
 
+    # def display_text(self, text, color, font):
+    #     self.text = font.render(text, True, color)
+    #     self.rect = self.text.get_rect(center = (self.SCREEN_WIDTH/2, 150))
 
-    
+    def clear(self):
+        self.asteriods.empty()
+        self.bullets.empty()
+        self.score.start_time = int(pygame.time.get_ticks()/1000)
+        self.score.astro_num = 0
+
     def run(self):
 
         # game loop
         while True:
             # event loop
             for event in pygame.event.get():
-                if event.type == pygame.QUIT or self.exit_button.pressed():
+                if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
                 if event.type == self.astro_timer and self.game_active:
@@ -91,14 +104,12 @@ class Main:
                         self.asteriods.add(Small_Asteriod())
                     else:           # 1/6 of the time a big astro 
                         self.asteriods.add(Big_Asteriod())
-                        
-            # start menu
-            self.screen.fill((0,8,64))
-            self.screen.blit(self.game_title, self.game_title_rect)
-            self.start_button.draw(self.screen, (145, 44, 238), "blue", 2, 10, (165, 64, 255))
-            self.exit_button.draw(self.screen, (145, 44, 238), "blue", 2, 10, (165, 64, 255))
-            if self.start_button.pressed():
-                self.game_active = True
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE and self.game_active:
+                        self.game_active = False
+                        self.game_state = "pause"
+                    elif event.key == pygame.K_ESCAPE and not self.game_active:
+                        self.game_active = True
 
             if self.game_active:
                 # draw scrolling bg
@@ -122,12 +133,56 @@ class Main:
                 self.check_collisions() 
 
                 # score
-                self.score.display(self.screen, self.font3)
+                self.score.display(self.screen, (self.SCREEN_WIDTH/2, 30), self.font3, "grey")
                 self.score.update()
 
-            # game over / pause states
+            # game states
             else:
-                pass
+                 # start menu
+                if self.game_state == "startMenu":
+                    self.screen.fill((0,8,64))
+                    self.screen.blit(self.game_title, self.game_title_rect)
+                    self.start_button.draw(self.screen, (145, 44, 238), "blue", 2, 10, (165, 64, 255))
+                    self.exit_button.draw(self.screen, (145, 44, 238), "blue", 2, 10, (165, 64, 255))
+                    if self.start_button.pressed():
+                        self.score.start_time = int(pygame.time.get_ticks()/1000)
+                        self.game_active = True
+                    if self.exit_button.pressed():
+                        pygame.quit()
+                        exit()
+                # game over 
+                elif self.game_state == "gameOver":
+                    self.end_text = self.font1.render("Game Over", True,(66,22,210))
+                    self.end_text_rect = self.end_text.get_rect(center = (self.SCREEN_WIDTH/2, 200))
+                    self.screen.fill((0,8,64))
+                    self.screen.blit(self.end_text, self.end_text_rect)
+                    self.score.display(self.screen, (self.SCREEN_WIDTH/2, 300), self.font2, (66,22,210))
+                    self.restart_button.draw(self.screen, (145, 44, 238), "blue", 2, 10, (165, 64, 255))
+                    self.menu_button.draw(self.screen, (145, 44, 238), "blue", 2, 10, (165, 64, 255))
+                    keys = pygame.key.get_pressed()
+                    if self.restart_button.pressed() or keys[pygame.K_RETURN]:
+                        self.clear()
+                        self.game_active = True
+                    if self.menu_button.pressed():
+                        self.clear()
+                        self.game_state = "startMenu"
+
+                # pause
+                elif self.game_state == "pause":
+                    self.screen.fill((0,8,64))
+                    self.pause_text = self.font1.render("Pause", True,(66,22,210))
+                    self.pause_text_rect = self.pause_text.get_rect(center = (self.SCREEN_WIDTH/2, 200))
+                    self.screen.blit(self.pause_text, self.pause_text_rect)
+                    self.restart_button.draw(self.screen, (145, 44, 238), "blue", 2, 10, (165, 64, 255))
+                    self.menu_button.draw(self.screen, (145, 44, 238), "blue", 2, 10, (165, 64, 255))
+                    if self.restart_button.pressed():
+                        self.clear()
+                        self.game_active = True
+                    if self.menu_button.pressed():
+                        self.clear()
+                        self.game_state = "startMenu"
+                
+
             # update game info
             pygame.display.update()
             self.clock.tick(60)
