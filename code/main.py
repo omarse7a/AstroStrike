@@ -6,6 +6,7 @@ from player import Player
 from asteroids import Big_Asteriod, Small_Asteriod
 from my_buttons import Button_2
 from score import Score
+import json
 
 class Main:
     def __init__(self):
@@ -15,13 +16,16 @@ class Main:
         pygame.init()
         self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         pygame.display.set_caption("Space Fighter")
+        self.icon = pygame.image.load("graphics/icon.png").convert()
+        pygame.display.set_icon(self.icon)
         self.game_active = False
         self.game_state = "startMenu"
         self.clock = pygame.time.Clock()
         self.font1 = pygame.font.Font("fonts/kenvector_future.ttf", 72)
-        self.font2 = pygame.font.Font("fonts/kenvector_future_thin.ttf", 46)
+        self.font2 = pygame.font.Font("fonts/kenvector_future_thin.ttf", 36)
         self.font3 = pygame.font.Font("fonts/kenvector_future.ttf", 24)
         self.score = Score()
+        self.new_high_score = False
         
         # start menu
         self.game_title = self.font1.render("Space Fighter", True,(66,22,210))
@@ -48,12 +52,12 @@ class Main:
         self.scroll = 0
 
         # respawn timer
-        self.astro_timer = pygame.USEREVENT + 1
-        pygame.time.set_timer(self.astro_timer, 500)
+        self.astro_respawn = pygame.USEREVENT + 1
+        pygame.time.set_timer(self.astro_respawn, 500)
 
         # sound effects
         self.lose_sound = pygame.mixer.Sound("audio/sfx_lose.ogg")
-        self.lose_sound.set_volume(0.5)
+        self.lose_sound.set_volume(0.6)
         self.hit_sound = pygame.mixer.Sound("audio/sfx_hit.wav")
         self.hit_sound.set_volume(0.05)
 
@@ -87,15 +91,31 @@ class Main:
             elif pygame.sprite.spritecollide(sprite, self.bullets, True):
                 self.hit_sound.play()
 
-    # def display_text(self, text, color, font):
-    #     self.text = font.render(text, True, color)
-    #     self.rect = self.text.get_rect(center = (self.SCREEN_WIDTH/2, 150))
-
     def clear(self):
         self.asteriods.empty()
         self.bullets.empty()
         self.score.start_time = int(pygame.time.get_ticks()/1000)
         self.score.astro_num = 0
+        self.new_high_score = False
+
+    def save_high_score(self, score):
+        # open the json file as python object <file> on read-write mode
+        with open("code/data.json", 'r+') as file:   
+            data = json.load(file)  # loads the json data to a dictionary
+            data["high_score"] = max(data["high_score"], score)
+            file.seek(0) # move the file pointer to the begining
+            json.dump(data, file, indent = 4)
+    
+    def load_high_score(self):
+        try:
+            # open the json file as python object <file> on read only mode
+            with open("code/data.json", 'r') as file: 
+                data = json.load(file) # loads the json data to a dictionary
+                return data["high_score"]
+        except FileNotFoundError:   # handling file doesn't exist
+            print("High score file not found. Creating a new one.")
+            return 0  # Default high score if file doesn't exist
+        
 
     def run(self):
 
@@ -106,7 +126,7 @@ class Main:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
-                if event.type == self.astro_timer and self.game_active:
+                if event.type == self.astro_respawn and self.game_active:
                     if randint(0, 6):   # 5/6 of the time a small astro 
                         self.asteriods.add(Small_Asteriod())
                     else:           # 1/6 of the time a big astro 
@@ -141,7 +161,21 @@ class Main:
 
                 # score
                 self.score.display(self.screen, (self.SCREEN_WIDTH/2, 30), self.font3, "grey")
+                if self.score.get_score() > self.load_high_score():
+                    self.new_high_score = True
                 self.score.update()
+
+                # difficulty handling
+                if self.score.get_score() == 100:
+                    pygame.time.set_timer(self.astro_respawn, 400)
+                elif self.score.get_score() == 250:
+                    pygame.time.set_timer(self.astro_respawn, 300)
+                elif self.score.get_score() == 500:
+                    pygame.time.set_timer(self.astro_respawn, 200)
+                elif self.score.get_score() == 1000:
+                    pygame.time.set_timer(self.astro_respawn, 100)
+                        
+
 
             # game states
             else:
@@ -159,13 +193,25 @@ class Main:
                         exit()
                 # game over 
                 elif self.game_state == "gameOver":
-                    self.end_text = self.font1.render("Game Over", True,(66,22,210))
-                    self.end_text_rect = self.end_text.get_rect(center = (self.SCREEN_WIDTH/2, 200))
                     self.screen.fill((0,8,64))
-                    self.screen.blit(self.end_text, self.end_text_rect)
-                    self.score.display(self.screen, (self.SCREEN_WIDTH/2, 300), self.font2, (66,22,210))
+
+                    self.lose_text = self.font1.render("Game Over", True,(66,22,210))
+                    self.lose_rect = self.lose_text.get_rect(center = (self.SCREEN_WIDTH/2, 100))
+                    self.screen.blit(self.lose_text, self.lose_rect)
+                    
+                    self.score.display(self.screen, (self.SCREEN_WIDTH/2, 230), self.font2, (66,22,210))
+
+                    if self.new_high_score:
+                        self.high_score_text = self.font2.render(f"HighScore: {self.load_high_score()} (new)", True,(66,22,210))##
+                        self.save_high_score(self.score.get_score())  
+                    else:
+                        self.high_score_text = self.font2.render(f"HighScore: {self.load_high_score()}", True,(66,22,210))
+                    self.high_score_rect = self.high_score_text.get_rect(center = (self.SCREEN_WIDTH/2, 320))
+                    self.screen.blit(self.high_score_text, self.high_score_rect)
+                    
                     self.restart_button.draw(self.screen, (145, 44, 238), "blue", 2, 10, (165, 64, 255))
                     self.menu_button.draw(self.screen, (145, 44, 238), "blue", 2, 10, (165, 64, 255))
+
                     keys = pygame.key.get_pressed()
                     if self.restart_button.pressed() or keys[pygame.K_RETURN]:
                         self.clear()

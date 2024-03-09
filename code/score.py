@@ -6,6 +6,9 @@ class Score:
         self.score = 0
         self.astro_num = 0  # number of destroyed asteroids
 
+    def get_score(self):
+        return self.score
+
     def display(self, surface, pos, font, color):
         # display the score at the top of the game screen
         self.score_surface = font.render(f"Score: {self.score}", True, color)
