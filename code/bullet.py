@@ -9,7 +9,7 @@ class Bullet(pygame.sprite.Sprite):
     def move(self):
         # moving bullets until the get outside the screen
         if self.rect.top >= 0:
-            self.rect.y -= 7
+            self.rect.y -= 10
         else:
             self.kill()
     

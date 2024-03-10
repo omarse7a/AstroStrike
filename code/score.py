@@ -5,8 +5,10 @@ class Score:
         self.start_time = 0 # to reset the score when the game restarts
         self.score = 0
         self.astro_num = 0  # number of destroyed asteroids
+        self.paused_time = 0    # the time while the game was paused
 
     def get_score(self):
+        # return the game score
         return self.score
 
     def display(self, surface, pos, font, color):
@@ -18,4 +20,4 @@ class Score:
     def update(self):
         # updating the score each frame
         time_elapsed = int(pygame.time.get_ticks()/1000)
-        self.score = (time_elapsed-self.start_time) + self.astro_num*5
+        self.score = max(0, (time_elapsed-self.start_time-self.paused_time) + self.astro_num*5)

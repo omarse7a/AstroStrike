@@ -18,7 +18,7 @@ class Player(pygame.sprite.Sprite):
         self.shoot_clicked = False
 
         self.laser_sound = pygame.mixer.Sound("audio/sfx_laser1.ogg")   # laser sound effect
-        self.laser_sound.set_volume(0.1)
+        self.laser_sound.set_volume(0.5)
 
     def player_input(self):
         keys = pygame.key.get_pressed()
@@ -37,7 +37,7 @@ class Player(pygame.sprite.Sprite):
             
     def player_animation(self): 
         # animating spaceship movement
-        self.index += 0.04
+        self.index += 0.05
         if self.index >= len(self.frames): self.index = 0
         self.image = self.frames[int(self.index)]
 
