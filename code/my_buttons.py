@@ -2,10 +2,12 @@ import pygame
 
 # image button
 class Button_1:
-    def __init__(self, image, x, y, scale):
-        width = image.get_width()
-        height = image.get_height()
-        self.image = pygame.transform.scale(image, (int(width*scale), int(height*scale)))
+    def __init__(self, image, x, y, scale = 1):
+        self.width = image.get_width()
+        self.height = image.get_height()
+        self.pos = (x, y)
+        self.scale = scale
+        self.image = pygame.transform.scale(image, (int(self.width*self.scale), int(self.height*self.scale)))
         self.rect = self.image.get_rect(midtop = (x, y))
         self.clicked = False
     
@@ -18,6 +20,10 @@ class Button_1:
         # get mouse position
         mouse_pos = pygame.mouse.get_pos();
         return  self.rect.collidepoint(mouse_pos)
+
+    def switch_img(self, image):
+        self.image = pygame.transform.scale(image, (int(self.width*self.scale), int(self.height*self.scale)))
+        self.rect = self.image.get_rect(midtop = self.pos)
 
     # returns true when the click is released
     def pressed(self):  

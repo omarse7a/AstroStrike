@@ -23,10 +23,10 @@ class Player(pygame.sprite.Sprite):
     def player_input(self):
         keys = pygame.key.get_pressed()
         if (keys[pygame.K_d] or keys[pygame.K_RIGHT]) and self.rect.right < 800:
-            self.rect.x += 5
+            self.rect.x += 6
         
         elif (keys[pygame.K_a] or keys[pygame.K_LEFT] )and self.rect.left > 0:
-            self.rect.x -= 5
+            self.rect.x -= 6
 
         if keys[pygame.K_SPACE] and not self.shoot_clicked: # spacebar pressed
             self.bullets.add(Bullet(self.rect.center[0]))   # create a bullet sprite from the center of the spaceship

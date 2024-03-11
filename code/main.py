@@ -4,7 +4,7 @@ from random import randint
 from math import ceil
 from player import Player
 from asteroids import Big_Asteriod, Small_Asteriod
-from my_buttons import Button_2
+from my_buttons import Button_1, Button_2
 from score import Score
 import json
 
@@ -65,9 +65,13 @@ class Main:
         self.hit_sound.set_volume(0.1)
 
         # theme song
+        music_on = pygame.image.load("graphics/musicbutton/musicOn.png")
+        music_off = pygame.image.load("graphics/musicbutton/musicOff.png")
+        self.music_frames = [music_on, music_off]
+        self.music_index = 0
+        self.music_button = Button_1(music_on, 50, 0)
         self.theme_song = pygame.mixer.Sound("audio/Long_Away_Home.wav")
-        self.theme_song.set_volume(0.3)
-        self.theme_song.play(-1)
+        self.theme_song.set_volume(0.4)
 
     def bg_scroll(self):
         # drawing bg
@@ -86,6 +90,7 @@ class Main:
             self.lose_sound.play()
             self.game_active = False
             self.game_state = "gameOver"
+            self.theme_song.stop()
 
         # detects rect collisions for between bullets and asteroid
         for sprite in self.asteriods.sprites():
@@ -104,6 +109,7 @@ class Main:
         # resets the game data for a new game
         self.asteriods.empty()
         self.bullets.empty()
+        pygame.time.set_timer(self.astro_respawn, 500)
         self.player.sprite.rect.midtop = (400, 500)
         self.score.start_time = int(pygame.time.get_ticks()/1000)
         self.level = 1
@@ -111,10 +117,12 @@ class Main:
         self.astro_speed = 4
         self.scroll_speed = 3
         self.new_high_score = False
+        self.music_index = 0
+        self.music_button.switch_img(self.music_frames[self.music_index])
 
     def save_high_score(self, score):
         # open the json file as python object <file> on read-write mode
-        with open("code/data.json", 'r+') as file:   
+        with open("data.json", 'r+') as file:   
             data = json.load(file)  # loads the json data to a dictionary
             data["high_score"] = max(data["high_score"], score)
             file.seek(0) # move the file pointer to the begining
@@ -123,7 +131,7 @@ class Main:
     def load_high_score(self):
         try:
             # open the json file as python object <file> on read only mode
-            with open("code/data.json", 'r') as file: 
+            with open("data.json", 'r') as file: 
                 data = json.load(file) # loads the json data to a dictionary
                 return data["high_score"]
         except FileNotFoundError:   # handling file doesn't exist
@@ -156,11 +164,14 @@ class Main:
                         pause_time = int(pygame.time.get_ticks()/1000) # the game time when the game is paused
                         self.game_active = False
                         self.game_state = "pause"
+                        self.theme_song.stop()
                     # resume when ESC key is pressed again
                     elif event.key == pygame.K_ESCAPE and not self.game_active:
                         resume_time = int(pygame.time.get_ticks()/1000)     # the game time when the game is resumed
                         self.score.paused_time += resume_time - pause_time  # calc the total paused time to remove it from the score calculations
                         self.game_active = True
+                        if self.music_index == 0:
+                            self.theme_song.play(-1)
 
             if self.game_active:
                 # draw scrolling bg
@@ -184,11 +195,23 @@ class Main:
                 self.check_collisions() 
 
                 # score
-                self.score.display(self.screen, (self.SCREEN_WIDTH/2, 30), self.font3, "grey")
+                self.score.display(self.screen, (self.SCREEN_WIDTH/2, 30), self.font3, "white")
                 # checking if the highscore is surpassed
                 if self.score.get_score() > self.load_high_score(): 
                     self.new_high_score = True
                 self.score.update()
+
+                # music button
+                self.music_button.draw(self.screen)
+                if self.music_button.pressed():
+                    if self.music_index == 0:
+                        self.music_index = 1
+                        self.music_button.switch_img(self.music_frames[self.music_index])
+                        self.theme_song.stop()
+                    else:
+                        self.music_index = 0
+                        self.music_button.switch_img(self.music_frames[self.music_index])
+                        self.theme_song.play(-1)
 
                 # difficulty handling (levels)
                 # by reducing the asteroids respawn time and increasing their speed
@@ -219,6 +242,7 @@ class Main:
                     if self.start_button.pressed():
                         self.score.start_time = int(pygame.time.get_ticks()/1000)
                         self.game_active = True
+                        self.theme_song.play(-1)
 
                     if self.exit_button.pressed():
                         pygame.quit()
@@ -249,6 +273,7 @@ class Main:
                     if self.restart_button.pressed() or keys[pygame.K_RETURN]:
                         self.clear()
                         self.game_active = True
+                        self.theme_song.play(-1)
 
                     if self.menu_button.pressed():
                         self.clear()
@@ -268,6 +293,7 @@ class Main:
                     if self.restart_button.pressed():
                         self.clear()
                         self.game_active = True
+                        self.theme_song.play(-1)
                         
                     if self.menu_button.pressed():
                         self.clear()
