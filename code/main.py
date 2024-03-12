@@ -2,11 +2,14 @@ import pygame
 from sys import exit
 from random import randint
 from math import ceil
+import json
+from os import path
+
 from player import Player
 from asteroids import Big_Asteriod, Small_Asteriod
 from my_buttons import Button_1, Button_2
 from score import Score
-import json
+
 
 class Main:
     def __init__(self):
@@ -16,14 +19,14 @@ class Main:
         pygame.init()
         pygame.display.set_caption("Space Fighter")
         self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
-        self.icon = pygame.image.load("graphics/icon.png").convert()
+        self.icon = pygame.image.load(path.join("graphics","icon","icon.png")).convert()
         pygame.display.set_icon(self.icon)
         self.game_active = False
         self.game_state = "startMenu"
         self.clock = pygame.time.Clock()
-        self.font1 = pygame.font.Font("fonts/kenvector_future.ttf", 72)
-        self.font2 = pygame.font.Font("fonts/kenvector_future_thin.ttf", 36)
-        self.font3 = pygame.font.Font("fonts/kenvector_future.ttf", 24)
+        self.font1 = pygame.font.Font(path.join("fonts", "kenvector_future.ttf"), 72)
+        self.font2 = pygame.font.Font(path.join("fonts", "kenvector_future_thin.ttf"), 36)
+        self.font3 = pygame.font.Font(path.join("fonts", "kenvector_future.ttf"), 24)
         self.score = Score()
         self.new_high_score = False
         self.level = 1
@@ -48,7 +51,7 @@ class Main:
         self.astro_speed = 4
         
         # background
-        self.bg_image = pygame.image.load("graphics/background/background.png").convert()
+        self.bg_image = pygame.image.load(path.join("graphics","background", "background.png")).convert()
         self.bg_rect = self.bg_image.get_rect()
         self.bg_tiles = ceil(self.SCREEN_HEIGHT/self.bg_image.get_height()) + 1
         self.scroll = 0
@@ -59,18 +62,18 @@ class Main:
         pygame.time.set_timer(self.astro_respawn, 500)
 
         # sound effects
-        self.lose_sound = pygame.mixer.Sound("audio/sfx_lose.ogg")
+        self.lose_sound = pygame.mixer.Sound(path.join("audio", "sfx_lose.ogg"))
         self.lose_sound.set_volume(1)
-        self.hit_sound = pygame.mixer.Sound("audio/sfx_hit.wav")
+        self.hit_sound = pygame.mixer.Sound(path.join("audio", "sfx_hit.wav"))
         self.hit_sound.set_volume(0.1)
 
         # theme song
-        music_on = pygame.image.load("graphics/musicbutton/musicOn.png")
-        music_off = pygame.image.load("graphics/musicbutton/musicOff.png")
+        music_on = pygame.image.load(path.join("graphics","musicbutton","musicOn.png"))
+        music_off = pygame.image.load(path.join("graphics","musicbutton","musicOff.png"))
         self.music_frames = [music_on, music_off]
         self.music_index = 0
         self.music_button = Button_1(music_on, 50, 0)
-        self.theme_song = pygame.mixer.Sound("audio/Long_Away_Home.wav")
+        self.theme_song = pygame.mixer.Sound(path.join("audio","Long_Away_Home.mp3"))
         self.theme_song.set_volume(0.4)
 
     def bg_scroll(self):

@@ -1,4 +1,5 @@
 import pygame
+from os import path
 from bullet import Bullet
 
 class Player(pygame.sprite.Sprite):
@@ -6,8 +7,8 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         # importing images
-        spaceship_1 = pygame.image.load("graphics/spaceship/spaceship1.png").convert_alpha()
-        spaceship_2 = pygame.image.load("graphics/spaceship/spaceship2.png").convert_alpha()
+        spaceship_1 = pygame.image.load(path.join("graphics","spaceship","spaceship1.png")).convert_alpha()
+        spaceship_2 = pygame.image.load(path.join("graphics","spaceship","spaceship2.png")).convert_alpha()
 
         self.frames = [spaceship_1, spaceship_2]
         self.index = 0
@@ -17,7 +18,7 @@ class Player(pygame.sprite.Sprite):
         self.bullets = pygame.sprite.Group()
         self.shoot_clicked = False
 
-        self.laser_sound = pygame.mixer.Sound("audio/sfx_laser1.ogg")   # laser sound effect
+        self.laser_sound = pygame.mixer.Sound(path.join("audio","sfx_laser1.ogg"))   # laser sound effect
         self.laser_sound.set_volume(0.5)
 
     def player_input(self):

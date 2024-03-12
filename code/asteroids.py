@@ -1,6 +1,6 @@
-from typing import Any
 import pygame
 from random import choice, randint
+from os import path
 
 class Asteroid(pygame.sprite.Sprite):
 
@@ -27,9 +27,9 @@ class Big_Asteriod(Asteroid):
     def __init__(self, speed):
         super().__init__(speed)
         # importing images
-        big_astro_1 = pygame.image.load("graphics/asteroids/astroBig1.png").convert_alpha()
-        big_astro_2 = pygame.image.load("graphics/asteroids/astroBig2.png").convert_alpha()
-        big_astro_3 = pygame.image.load("graphics/asteroids/astroBig3.png").convert_alpha()
+        big_astro_1 = pygame.image.load(path.join("graphics","asteroids","astroBig1.png")).convert_alpha()
+        big_astro_2 = pygame.image.load(path.join("graphics","asteroids","astroBig2.png")).convert_alpha()
+        big_astro_3 = pygame.image.load(path.join("graphics","asteroids","astroBig3.png")).convert_alpha()
         
         self.image = choice([big_astro_1,big_astro_2,big_astro_3])  # displaying astro image randomly
         # positioning the astro above the display screen in random x pos inside the screen borders
@@ -41,9 +41,9 @@ class Small_Asteriod(Asteroid):
     def __init__(self, speed):
         super().__init__(speed)
          # importing images       
-        small_astro_1 = pygame.image.load("graphics/asteroids/astroSmall1.png").convert_alpha()
-        small_astro_2 = pygame.image.load("graphics/asteroids/astroSmall2.png").convert_alpha()
-        small_astro_3 = pygame.image.load("graphics/asteroids/astroSmall3.png").convert_alpha()
+        small_astro_1 = pygame.image.load(path.join("graphics","asteroids","astroSmall1.png")).convert_alpha()
+        small_astro_2 = pygame.image.load(path.join("graphics","asteroids","astroSmall2.png")).convert_alpha()
+        small_astro_3 = pygame.image.load(path.join("graphics","asteroids","astroSmall3.png")).convert_alpha()
         
         self.image = choice([small_astro_1,small_astro_2,small_astro_3])    # displaying astro image randomly
         # positioning the astro above the display screen in random x pos inside the screen borders
